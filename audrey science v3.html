@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Audrey's Science Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══ CSS VARIABLES ═══ */
+:root{
+  --bg:#f0f8ff;
+  --card:#ffffff;
+  --navy:#1e3a5f;
+  --blue:#2980b9;
+  --sky:#3498db;
+  --green:#27ae60;
+  --red:#e74c3c;
+  --yellow:#f1c40f;
+  --orange:#e67e22;
+  --purple:#8e44ad;
+  --teal:#16a085;
+  --shadow:0 6px 24px rgba(41,128,185,0.14);
+
+  /* TABLET-FIRST sizing tokens */
+  --fs-title:2rem;
+  --fs-sub:0.95rem;
+  --fs-body:1.1rem;
+  --fs-sm:0.9rem;
+  --fs-xs:0.8rem;
+  --pad-card:28px 24px;
+  --pad-btn:16px 20px;
+  --gap:14px;
+  --radius:20px;
+  --max-w:780px;
+}
+
+/* smaller phones */
+@media(max-width:480px){
+  :root{
+    --fs-title:1.55rem;
+    --fs-sub:0.8rem;
+    --fs-body:0.97rem;
+    --fs-sm:0.82rem;
+    --fs-xs:0.72rem;
+    --pad-card:18px 15px;
+    --pad-btn:12px 15px;
+    --gap:10px;
+    --radius:16px;
+    --max-w:100%;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  min-height:100vh;
+  color:var(--navy);
+  background-image:
+    radial-gradient(ellipse at 5% 5%,rgba(52,152,219,.12) 0,transparent 55%),
+    radial-gradient(ellipse at 95% 90%,rgba(241,196,15,.1) 0,transparent 55%);
+}
+
+/* ═══ HEADER ═══ */
+.header{
+  background:linear-gradient(135deg,#1e3a5f 0%,#2471a3 100%);
+  color:#fff;padding:20px 24px 16px;text-align:center;
+  box-shadow:0 4px 20px rgba(30,58,95,.35);
+  position:relative;overflow:hidden;
+}
+.header::before{content:'🧲';position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:2.2rem;opacity:.2}
+.header::after{content:'⚙️';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:2.2rem;opacity:.2}
+.header h1{font-family:'Fredoka One',cursive;font-size:var(--fs-title);letter-spacing:.5px}
+.header p{font-size:var(--fs-sub);opacity:.85;margin-top:3px}
+
+/* ═══ SCREENS ═══ */
+.screen{display:none;max-width:var(--max-w);margin:0 auto;padding:20px 16px 50px}
+.screen.on{display:block}
+
+.sec-title{
+  font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--navy);
+  margin:20px 0 12px;display:flex;align-items:center;gap:8px
+}
+.sec-title::before{content:'';width:6px;height:22px;background:var(--sky);border-radius:3px;flex-shrink:0}
+
+/* ═══ MODE GRID ═══ */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin:14px 0}
+@media(min-width:600px){.mode-grid{grid-template-columns:repeat(3,1fr)}}
+
+.mcard{
+  background:#fff;border-radius:var(--radius);padding:20px 14px;
+  text-align:center;cursor:pointer;
+  box-shadow:var(--shadow);border:3px solid transparent;
+  transition:.2s;user-select:none;
+}
+.mcard:hover,.mcard:active{transform:translateY(-3px);box-shadow:0 10px 30px rgba(41,128,185,.22)}
+.mcard.sel{border-color:var(--sky);background:#eaf6ff}
+.mcard .ico{font-size:2.6rem;margin-bottom:8px;line-height:1}
+.mcard .lbl{font-weight:900;font-size:var(--fs-sm);color:var(--navy)}
+.mcard .sub{font-size:var(--fs-xs);color:var(--sky);margin-top:3px;font-weight:700}
+.full{grid-column:1/-1}
+.oral-card{background:linear-gradient(135deg,#f8f3ff,#e8d5f5) !important;border-color:#c39bd3 !important}
+.oral-card.sel{border-color:#8e44ad !important;background:#f0e5ff !important}
+
+/* ═══ BUTTONS ═══ */
+.btn{
+  display:block;width:100%;padding:var(--pad-btn);border:none;
+  border-radius:calc(var(--radius) - 4px);
+  font-family:'Nunito',sans-serif;font-size:var(--fs-body);font-weight:900;
+  cursor:pointer;transition:.18s;text-align:center;letter-spacing:.3px;
+}
+.btn:active{transform:scale(.97)}
+.bp{background:linear-gradient(135deg,#3498db,#1e3a5f);color:#fff;box-shadow:0 5px 18px rgba(41,128,185,.3)}
+.bg{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;box-shadow:0 5px 15px rgba(39,174,96,.3)}
+.bo{background:linear-gradient(135deg,#e67e22,#f39c12);color:#fff;box-shadow:0 5px 15px rgba(230,126,34,.3)}
+.br{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff}
+.bw{background:#fff;border:3px solid var(--sky);color:var(--navy)}
+.bpu{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;box-shadow:0 5px 15px rgba(142,68,173,.3)}
+.btn+.btn{margin-top:11px}
+
+/* ═══ PROGRESS ═══ */
+.prog-wrap{margin:12px 0 6px}
+.prog-top{display:flex;justify-content:space-between;font-size:var(--fs-sm);font-weight:800;color:var(--navy);margin-bottom:6px}
+.prog-bar{height:11px;background:rgba(52,152,219,.18);border-radius:11px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--green));border-radius:11px;transition:width .4s}
+
+/* ═══ QUESTION CARD ═══ */
+.qcard{
+  background:#fff;border-radius:var(--radius);padding:var(--pad-card);
+  box-shadow:var(--shadow);margin-bottom:14px;animation:fadeUp .28s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.qmeta{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.badge{font-size:var(--fs-xs);font-weight:800;padding:4px 11px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.bmc{background:#fff3cd;color:#7d5a00}
+.btf{background:#d1f0e0;color:#0a4020}
+.btext{background:#e8d5f5;color:#4a1070}
+.border{background:#cfe2ff;color:#0a3069}
+.topic-tag{font-size:var(--fs-xs);font-weight:700;color:var(--sky);background:#eaf6ff;padding:4px 11px;border-radius:20px}
+.qnum{font-size:var(--fs-xs);font-weight:800;color:#bbb;margin-left:auto}
+.qtext{font-size:var(--fs-body);font-weight:700;line-height:1.6;color:var(--navy);margin-bottom:18px}
+
+/* ═══ OPTIONS ═══ */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  width:100%;padding:14px 18px;border:3px solid #d6eaf8;border-radius:14px;
+  background:#f4faff;font-family:'Nunito',sans-serif;font-size:var(--fs-body);
+  font-weight:700;color:var(--navy);cursor:pointer;text-align:left;transition:.16s;
+  min-height:52px;
+}
+.opt:hover:not(:disabled){border-color:var(--sky);background:#dbeeff}
+.opt.ok{border-color:var(--green) !important;background:#d4f5e3 !important;color:#1a5c35 !important}
+.opt.ng{border-color:var(--red) !important;background:#fde8e8 !important;color:#7a1010 !important}
+.opt:disabled{cursor:default}
+
+.tf-row{display:flex;gap:14px}
+.tfb{
+  flex:1;padding:18px 12px;border:3px solid #d6eaf8;border-radius:16px;
+  background:#f4faff;font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:900;
+  color:var(--navy);cursor:pointer;text-align:center;transition:.16s;min-height:64px;
+}
+.tfb:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.tfb.ok{border-color:var(--green) !important;background:#d4f5e3 !important;color:#1a5c35 !important}
+.tfb.ng{border-color:var(--red) !important;background:#fde8e8 !important;color:#7a1010 !important}
+.tfb:disabled{cursor:default}
+
+.inp-row{display:flex;gap:10px;align-items:stretch}
+.qinp{
+  flex:1;padding:13px 16px;border:3px solid #d6eaf8;border-radius:14px;
+  font-family:'Nunito',sans-serif;font-size:var(--fs-body);font-weight:700;
+  color:var(--navy);background:#f4faff;outline:none;transition:.16s;
+}
+.qinp:focus{border-color:var(--sky)}
+.qinp.ok{border-color:var(--green);background:#d4f5e3}
+.qinp.ng{border-color:var(--red);background:#fde8e8}
+
+.ckbtn{
+  padding:13px 20px;background:var(--sky);color:#fff;border:none;border-radius:14px;
+  font-family:'Nunito',sans-serif;font-size:var(--fs-sm);font-weight:900;
+  cursor:pointer;transition:.16s;white-space:nowrap;
+}
+.ckbtn:hover{background:var(--navy)}
+
+.fb{margin-top:13px;padding:13px 16px;border-radius:13px;font-size:var(--fs-sm);font-weight:700;display:none}
+.fb.on{display:block;animation:fadeUp .2s ease}
+.fb.ok{background:#d4f5e3;color:#1a5c35;border-left:5px solid var(--green)}
+.fb.ng{background:#fde8e8;color:#7a1010;border-left:5px solid var(--red)}
+
+.nav-row{display:flex;gap:10px;margin-top:11px}
+.nav-row .btn{flex:1;padding:14px;font-size:var(--fs-sm)}
+
+/* ═══ ORDER ═══ */
+.ord-items{display:flex;flex-direction:column;gap:9px}
+.ord-item{
+  display:flex;align-items:center;gap:11px;background:#f4faff;
+  border:3px solid #d6eaf8;border-radius:14px;padding:12px 15px;
+}
+.ord-item.ok{border-color:var(--green) !important;background:#d4f5e3 !important}
+.ord-item.ng{border-color:var(--red) !important;background:#fde8e8 !important}
+.ord-inp{
+  width:50px;height:44px;border:2.5px solid #d6eaf8;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;
+  text-align:center;color:var(--navy);background:#fff;outline:none;flex-shrink:0;
+}
+.ord-inp:focus{border-color:var(--sky)}
+.ord-txt{font-size:var(--fs-sm);font-weight:700;flex:1;line-height:1.4}
+.ord-correct{font-size:var(--fs-xs);font-weight:800;color:var(--green);display:none;white-space:nowrap}
+
+/* ═══ ORAL SCREEN ═══ */
+.oral-wrap{
+  background:linear-gradient(135deg,#f5eeff,#ede0ff);
+  border-radius:var(--radius);padding:var(--pad-card);
+  box-shadow:0 4px 18px rgba(142,68,173,.15);margin-bottom:14px;
+}
+.oral-meta{font-size:var(--fs-xs);font-weight:800;color:#7d3c98;opacity:.75;margin-bottom:10px}
+.oral-q-text{
+  font-size:1.25rem;font-weight:800;color:#4a1070;line-height:1.55;
+  margin-bottom:18px;
+}
+@media(max-width:480px){.oral-q-text{font-size:1.05rem}}
+
+/* TTS speak buttons */
+.speak-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.speak-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:11px 18px;border:none;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:var(--fs-sm);font-weight:800;
+  cursor:pointer;transition:.18s;user-select:none;
+}
+.speak-btn:active{transform:scale(.96)}
+.speak-q{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff;box-shadow:0 4px 12px rgba(142,68,173,.3)}
+.speak-a{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;box-shadow:0 4px 12px rgba(22,160,133,.3)}
+.speak-btn .ico{font-size:1.15rem}
+.speak-btn.speaking{animation:speakPulse .6s infinite alternate}
+@keyframes speakPulse{from{box-shadow:0 4px 12px rgba(142,68,173,.3)}to{box-shadow:0 6px 24px rgba(142,68,173,.7),0 0 0 6px rgba(142,68,173,.15)}}
+
+.reveal-btn{
+  padding:12px 22px;border:none;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:var(--fs-sm);font-weight:800;
+  cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:6px;
+}
+.rv-ans{background:linear-gradient(135deg,#8e44ad,#9b59b6);color:#fff}
+.rv-hint{background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff}
+.reveal-btn:hover{filter:brightness(1.1)}
+
+.ans-box{
+  background:#fff;border-radius:14px;padding:16px 18px;margin-top:13px;
+  border-left:5px solid var(--purple);
+  font-size:var(--fs-sm);font-weight:700;color:#4a1070;display:none;
+  line-height:1.6;
+}
+.ans-box.on{display:block;animation:fadeUp .22s ease}
+.hint-box{border-left-color:var(--teal) !important;color:#0e6655 !important}
+
+.self-btns{display:flex;gap:10px;margin-top:14px}
+.self-btn{
+  flex:1;padding:13px 10px;border:none;border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:var(--fs-sm);font-weight:800;cursor:pointer;transition:.16s;
+}
+.sb-ok{background:#d4f5e3;color:#1a5c35;border:3px solid var(--green)}
+.sb-ok.active{background:#1e8449;color:#fff}
+.sb-ng{background:#fde8e8;color:#7a1010;border:3px solid var(--red)}
+.sb-ng.active{background:#c0392b;color:#fff}
+
+.oral-score-bar{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin-top:12px;font-size:var(--fs-sm);font-weight:800;
+}
+.osc{padding:6px 14px;border-radius:10px;display:flex;align-items:center;gap:5px}
+.osc-ok{background:#d4f5e3;color:#1a5c35}
+.osc-ng{background:#fde8e8;color:#7a1010}
+.osc-rem{background:#eaf6ff;color:var(--navy)}
+
+.oral-nav{display:flex;gap:10px;margin-top:12px}
+.oral-nav .btn{flex:1;font-size:var(--fs-sm);padding:14px}
+
+/* ═══ RESULTS ═══ */
+.res-card{background:#fff;border-radius:var(--radius);padding:var(--pad-card);text-align:center;box-shadow:var(--shadow);margin-bottom:16px}
+.score-ring{
+  width:140px;height:140px;border-radius:50%;margin:0 auto 16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 6px 24px rgba(0,0,0,.2);
+}
+.snum{font-family:'Fredoka One',cursive;font-size:2.6rem;line-height:1}
+.slbl{font-size:var(--fs-xs);font-weight:800;opacity:.85}
+.grade-txt{font-family:'Fredoka One',cursive;font-size:1.7rem;margin-bottom:8px}
+.stars{font-size:2rem;margin:7px 0}
+.grade-msg{font-size:var(--fs-sm);color:#666}
+.stats-row{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 15px}
+.stat-chip{background:#fff;border-radius:11px;padding:8px 14px;font-size:var(--fs-xs);font-weight:800;box-shadow:0 2px 9px rgba(0,0,0,.07);display:flex;align-items:center;gap:6px}
+.stat-dot{width:10px;height:10px;border-radius:50%}
+.wi{background:#fff5f5;border:2px solid #fcc;border-radius:13px;padding:13px 15px;margin-bottom:8px;text-align:left}
+.wi-q{font-size:var(--fs-xs);font-weight:700;color:#666;margin-bottom:4px}
+.wi-y{font-size:var(--fs-sm);color:var(--red);font-weight:700}
+.wi-c{font-size:var(--fs-sm);color:var(--green);font-weight:800}
+
+/* confetti */
+.cfwrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+.cfp{position:absolute;animation:cffall linear forwards}
+@keyframes cffall{from{transform:translateY(-20px) rotate(0);opacity:1}to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* hint text */
+.hint-txt{font-size:var(--fs-xs);color:var(--sky);font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:4px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Audrey's Science Practice</h1>
+  <p>Class 2F · Magnets · Heat &amp; Sound · Light · Simple Machines</p>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen on" id="s-home">
+  <div class="sec-title">Choose Practice Mode</div>
+  <div class="mode-grid">
+    <div class="mcard" onclick="pick('all',this)"><div class="ico">📚</div><div class="lbl">All Topics</div><div class="sub">Full exam practice</div></div>
+    <div class="mcard" onclick="pick('magnets',this)"><div class="ico">🧲</div><div class="lbl">Magnets</div><div class="sub">Poles · Attract · Repel</div></div>
+    <div class="mcard" onclick="pick('heat',this)"><div class="ico">🌡️</div><div class="lbl">Heat &amp; Sound</div><div class="sub">Energy · Temperature</div></div>
+    <div class="mcard" onclick="pick('machines',this)"><div class="ico">⚙️</div><div class="lbl">Simple Machines</div><div class="sub">Lever · Pulley · Ramp</div></div>
+    <div class="mcard" onclick="pick('light',this)"><div class="ico">💡</div><div class="lbl">Light</div><div class="sub">Reflect · Shadow</div></div>
+    <div class="mcard" onclick="pick('wrong',this)"><div class="ico">🎯</div><div class="lbl">Wrong Only</div><div class="sub" id="wlbl">Practice mistakes</div></div>
+    <div class="mcard oral-card full" onclick="pick('oral',this)">
+      <div class="ico">🎤</div>
+      <div class="lbl">Oral Test Practice</div>
+      <div class="sub">Tap 🔊 to hear the question — then answer aloud!</div>
+    </div>
+  </div>
+  <button class="btn bp" onclick="go()">🚀 Start Practice!</button>
+  <button class="btn bw" onclick="go(true)">🔀 Shuffle Questions</button>
+</div>
+
+<!-- ═══ PRACTICE ═══ -->
+<div class="screen" id="s-practice">
+  <div class="prog-wrap">
+    <div class="prog-top"><span id="ptopic">Science</span><span id="pcount">1/10</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+  </div>
+  <div class="qcard" id="qcard"></div>
+  <div class="nav-row">
+    <button class="btn bw" onclick="skip()">Skip ⏭</button>
+    <button class="btn bp" id="nxtbtn" onclick="next()" disabled>Next ➡</button>
+  </div>
+  <div style="text-align:center;margin-top:13px">
+    <button class="btn br" style="width:auto;padding:10px 26px;font-size:var(--fs-sm)" onclick="submitExam()">📋 Submit &amp; See Score</button>
+  </div>
+</div>
+
+<!-- ═══ ORAL ═══ -->
+<div class="screen" id="s-oral">
+  <div class="prog-wrap">
+    <div class="prog-top"><span>🎤 Oral Practice</span><span id="opcount">1/20</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="opfill" style="width:0%"></div></div>
+  </div>
+  <div id="ocard"></div>
+  <div class="oral-nav">
+    <button class="btn bw" onclick="prevOral()">◀ Previous</button>
+    <button class="btn bp" onclick="nextOral()">Next ▶</button>
+  </div>
+  <div style="text-align:center;margin-top:14px">
+    <button class="btn bw" style="width:auto;padding:10px 26px;font-size:var(--fs-sm)" onclick="stopSpeak();show('s-home')">🏠 Home</button>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div class="screen" id="s-results">
+  <div class="res-card" id="rsummary"></div>
+  <div id="rstats"></div>
+  <div id="rwrong"></div>
+  <div style="margin-top:10px">
+    <button class="btn bo" onclick="practiceWrong()">🎯 Practice Wrong Questions</button>
+    <button class="btn bg" onclick="restart()">🔁 Try Again</button>
+    <button class="btn bw" onclick="show('s-home')">🏠 Back to Home</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//   QUESTION BANK
+// ════════════════════════════════════════════
+const QB=[
+// ── MAGNETS ──
+{id:'L1',type:'order',topic:'Magnets',
+ question:'Listen and write the number order (1–5) for each sentence.',
+ items:[
+   {text:'If you put two south poles together, they will repel.',correct:2},
+   {text:'A compass points towards the North Pole.',correct:1},
+   {text:'A very strong magnet can pull objects from far away.',correct:5},
+   {text:'There are many objects that magnets do not attract.',correct:3},
+   {text:'Many magnets contain iron.',correct:4},
+ ]},
+{id:'F1',type:'text',topic:'Magnets',question:'What is a ___? (Fill in the blank)',hint:'Word bank: magnet / pull / objects / metal / attracted',answer:'magnet'},
+{id:'F2',type:'text',topic:'Magnets',question:'Magnets ___ some objects towards themselves.',hint:'Word bank: magnet / pull / objects / metal / attracted',answer:'pull'},
+{id:'F3',type:'text',topic:'Magnets',question:'Those ___ are usually made of metal.',hint:'Word bank: magnet / pull / objects / metal / attracted',answer:'objects'},
+{id:'F4',type:'text',topic:'Magnets',question:'Magnets are attracted to these ___ objects.',hint:'Word bank: magnet / pull / objects / metal / attracted',answer:'metal'},
+{id:'F5',type:'text',topic:'Magnets',question:'Magnets are not ___ to objects made of wood, or rubber.',hint:'Word bank: magnet / pull / objects / metal / attracted',answer:'attracted'},
+{id:'M1',type:'mc',topic:'Magnets',question:'If you put two south poles together, what happens?',options:['They attract','They repel','Nothing happens'],answer:1},
+{id:'M2',type:'mc',topic:'Magnets',question:'A compass points towards the ___ Pole.',options:['South','East','North'],answer:2},
+{id:'M3',type:'mc',topic:'Magnets',question:'Many magnets contain ___.',options:['plastic','iron','rubber'],answer:1},
+{id:'M4',type:'mc',topic:'Magnets',question:'Objects that magnets ARE attracted to are usually made of ___.',options:['wood','rubber','metal'],answer:2},
+{id:'M5',type:'mc',topic:'Magnets',question:'Which of these would a magnet NOT pick up?',options:['steel pin','eraser','iron nail'],answer:1},
+{id:'M6',type:'mc',topic:'Magnets',question:'Which of these would a magnet pick up?',options:['wooden block','plastic cup','iron screw'],answer:2},
+{id:'M7',type:'mc',topic:'Magnets',question:'A very strong magnet can pull objects from ___ away.',options:['very near','far','nowhere'],answer:1},
+{id:'M8',type:'mc',topic:'Magnets',question:'The two ends of a magnet are called ___.',options:['ends','poles','tips'],answer:1},
+{id:'M9',type:'mc',topic:'Magnets',question:'Opposite poles (North + South) will ___.',options:['repel','do nothing','attract'],answer:2},
+{id:'M10',type:'mc',topic:'Magnets',question:'Two north poles put together will ___.',options:['attract','repel','stick'],answer:1},
+{id:'M11',type:'mc',topic:'Magnets',question:'A magnet can pull objects ___ themselves.',options:['away from','towards','around'],answer:1},
+{id:'M12',type:'mc',topic:'Magnets',question:'Which shape of magnet looks like the letter "U"?',options:['Bar magnet','Horseshoe magnet','Ring magnet'],answer:1},
+{id:'MT1',type:'tf',topic:'Magnets',question:'A magnet is attracted to rubber objects.',answer:false,explanation:'Magnets are NOT attracted to rubber. They attract metal objects.'},
+{id:'MT2',type:'tf',topic:'Magnets',question:'Like poles repel each other.',answer:true},
+{id:'MT3',type:'tf',topic:'Magnets',question:'A magnet has two poles: North and South.',answer:true},
+{id:'MT4',type:'tf',topic:'Magnets',question:'A compass points towards the South Pole.',answer:false,explanation:'A compass points towards the North Pole.'},
+{id:'MT5',type:'tf',topic:'Magnets',question:'A magnet can attract objects made of iron.',answer:true},
+// ── HEAT ──
+{id:'B1',type:'mc',topic:'Heat',question:'___ makes matter move or change.',options:['Energy','Ideas','Wind'],answer:0},
+{id:'B2',type:'mc',topic:'Heat',question:'Heat is a kind of energy that can ___ the state of matter.',options:['retain','keep','change'],answer:2},
+{id:'B3',type:'mc',topic:'Heat',question:'___ can turn a solid into a liquid.',options:['Heat','Bricks','Ice'],answer:0},
+{id:'B4',type:'mc',topic:'Heat',question:'Most heat on ___ comes from the Sun.',options:['the Moon','Earth','Mars'],answer:1},
+{id:'B5',type:'mc',topic:'Heat',question:'Fuel is something that gives off heat when it is ___.',options:['burned','cooled','washed'],answer:0},
+{id:'B6',type:'mc',topic:'Heat',question:'Heat can also come from ___.',options:['cold','friction','clouds'],answer:1},
+{id:'B7',type:'mc',topic:'Heat',question:'___ is how hot or cold something is.',options:['Temperature','Thermometer','Sunlight'],answer:0},
+{id:'B8',type:'mc',topic:'Heat',question:'To measure ___, we use a tool called a thermometer.',options:['temperature','rain','clouds'],answer:0},
+{id:'B9',type:'mc',topic:'Heat',question:'Some ___ have liquid inside of them.',options:['thermometers','weather vanes','rain gauges'],answer:0},
+{id:'B10',type:'mc',topic:'Heat',question:'A ___ has its own shape. Like an eraser or pen.',options:['solid','liquid','gas'],answer:0},
+// ── HEAT & SOUND ──
+{id:'D1',type:'mc',topic:'Heat & Sound',question:'Which word means: "The kind of energy we can hear"?',options:['sound','vibrate','pitch','fuel','heat'],answer:0},
+{id:'D2',type:'mc',topic:'Heat & Sound',question:'Which word means: "To move back and forth quickly"?',options:['sound','vibrate','pitch','fuel','heat'],answer:1},
+{id:'D3',type:'mc',topic:'Heat & Sound',question:'Which word means: "How high or low a sound is"?',options:['sound','vibrate','pitch','fuel','heat'],answer:2},
+{id:'D4',type:'mc',topic:'Heat & Sound',question:'Which word means: "Gives off heat when it burns"?',options:['sound','vibrate','pitch','fuel','heat'],answer:3},
+{id:'D5',type:'mc',topic:'Heat & Sound',question:'Which word means: "Energy that can change the state of matter"?',options:['sound','vibrate','pitch','fuel','heat'],answer:4},
+{id:'HS1',type:'mc',topic:'Heat & Sound',question:'Sound travels when objects ___.',options:['vibrate','melt','freeze'],answer:0},
+{id:'HS2',type:'mc',topic:'Heat & Sound',question:'A high pitch means the sound is ___.',options:['very quiet','very high','very low'],answer:1},
+{id:'HS3',type:'mc',topic:'Heat & Sound',question:'A low pitch means the sound is ___.',options:['very fast','very low','very loud'],answer:1},
+{id:'HS4',type:'mc',topic:'Heat & Sound',question:'Which is an example of fuel?',options:['water','wood','air'],answer:1},
+{id:'HS5',type:'mc',topic:'Heat & Sound',question:'When you rub your hands together, you make ___.',options:['cold','light','heat'],answer:2},
+{id:'HS6',type:'mc',topic:'Heat & Sound',question:'Which tool measures temperature?',options:['ruler','thermometer','scale'],answer:1},
+{id:'HS7',type:'mc',topic:'Heat & Sound',question:'What is the main source of heat for Earth?',options:['the Moon','the Sun','fire'],answer:1},
+{id:'HS8',type:'mc',topic:'Heat & Sound',question:'Ice is a ___.',options:['liquid','gas','solid'],answer:2},
+{id:'HS9',type:'mc',topic:'Heat & Sound',question:'When heat is added to ice, the ice ___.',options:['freezes','melts','evaporates'],answer:1},
+{id:'HS10',type:'mc',topic:'Heat & Sound',question:'Water is a ___.',options:['solid','liquid','gas'],answer:1},
+{id:'HT1',type:'tf',topic:'Heat & Sound',question:'Heat can change a solid into a liquid.',answer:true},
+{id:'HT2',type:'tf',topic:'Heat & Sound',question:'Friction can produce heat.',answer:true},
+{id:'HT3',type:'tf',topic:'Heat & Sound',question:'Sound is a kind of energy we can see.',answer:false,explanation:'Sound is energy we can HEAR, not see.'},
+{id:'HT4',type:'tf',topic:'Heat & Sound',question:'A thermometer is used to measure sound.',answer:false,explanation:'A thermometer measures TEMPERATURE.'},
+{id:'HT5',type:'tf',topic:'Heat & Sound',question:'A gas has its own shape.',answer:false,explanation:'A GAS does not have its own shape. A SOLID has its own shape.'},
+// ── LIGHT ──
+{id:'LT1',type:'mc',topic:'Light',question:'Light travels in ___ lines.',options:['curved','straight','diagonal'],answer:1},
+{id:'LT2',type:'mc',topic:'Light',question:'When light bounces off a surface, it is called ___.',options:['refraction','reflection','absorption'],answer:1},
+{id:'LT3',type:'mc',topic:'Light',question:'An object that lets all light pass through is ___.',options:['opaque','transparent','translucent'],answer:1},
+{id:'LT4',type:'mc',topic:'Light',question:'An object that blocks all light is ___.',options:['opaque','transparent','translucent'],answer:0},
+{id:'LT5',type:'mc',topic:'Light',question:'A shadow is formed when ___ blocks light.',options:['water','an opaque object','a mirror'],answer:1},
+{id:'LT6',type:'mc',topic:'Light',question:'Which of these makes its own light?',options:['moon','mirror','sun'],answer:2},
+{id:'LT7',type:'mc',topic:'Light',question:'When light passes through a prism, it makes a ___.',options:['shadow','rainbow','mirror'],answer:1},
+{id:'LT8',type:'mc',topic:'Light',question:'Sunlight is a source of ___.',options:['cold','light and heat','sound'],answer:1},
+{id:'LTF1',type:'tf',topic:'Light',question:'Light travels in straight lines.',answer:true},
+{id:'LTF2',type:'tf',topic:'Light',question:'A shadow appears on the same side as the light source.',answer:false,explanation:'A shadow appears on the OPPOSITE side from the light source.'},
+{id:'LTF3',type:'tf',topic:'Light',question:'A mirror reflects light.',answer:true},
+{id:'LTF4',type:'tf',topic:'Light',question:'The Moon makes its own light.',answer:false,explanation:'The Moon reflects light from the Sun. It does not make its own light.'},
+// ── SIMPLE MACHINES ──
+{id:'C1',type:'tf',topic:'Simple Machines',question:'A steering wheel is a wheel and axle.',answer:true},
+{id:'C2',type:'tf',topic:'Simple Machines',question:'A simple machine can make work easier.',answer:true},
+{id:'C3',type:'tf',topic:'Simple Machines',question:'A fulcrum is a bar that moves against an unmoving point.',answer:false,explanation:'A LEVER is the bar. The FULCRUM is the unmoving point.'},
+{id:'C4',type:'tf',topic:'Simple Machines',question:'The unmoving point of a lever is called a fulcrum.',answer:true},
+{id:'C5',type:'tf',topic:'Simple Machines',question:'Shovels and seesaws are not levers.',answer:false,explanation:'Shovels and seesaws ARE levers!'},
+{id:'C6',type:'tf',topic:'Simple Machines',question:'A ramp is a surface that is straight and slanted.',answer:true},
+{id:'C7',type:'tf',topic:'Simple Machines',question:'Position is the place where something is.',answer:true},
+{id:'C8',type:'tf',topic:'Simple Machines',question:'Motion is when an object stays still.',answer:false,explanation:'Motion is when an object MOVES.'},
+{id:'C9',type:'tf',topic:'Simple Machines',question:'Speed is how far something moves in an amount of time.',answer:true},
+{id:'C10',type:'tf',topic:'Simple Machines',question:'A doorknob is also a pulley.',answer:false,explanation:'A doorknob is a WHEEL AND AXLE.'},
+{id:'SM1',type:'mc',topic:'Simple Machines',question:'A seesaw is an example of a ___.',options:['pulley','lever','ramp'],answer:1},
+{id:'SM2',type:'mc',topic:'Simple Machines',question:'A ramp is also called an ___.',options:['inclined plane','lever','axle'],answer:0},
+{id:'SM3',type:'mc',topic:'Simple Machines',question:'Which simple machine uses a rope and a wheel?',options:['lever','inclined plane','pulley'],answer:2},
+{id:'SM4',type:'mc',topic:'Simple Machines',question:'A doorknob is an example of a ___.',options:['lever','wheel and axle','pulley'],answer:1},
+{id:'SM5',type:'mc',topic:'Simple Machines',question:'The unmoving point of a lever is called the ___.',options:['axle','fulcrum','ramp'],answer:1},
+{id:'SM6',type:'mc',topic:'Simple Machines',question:'Simple machines help us ___.',options:['make work harder','make work easier','make sound louder'],answer:1},
+{id:'SM7',type:'mc',topic:'Simple Machines',question:'Which of these is a lever?',options:['shovel','pulley rope','bicycle wheel'],answer:0},
+{id:'SM8',type:'mc',topic:'Simple Machines',question:'___ is the place where something is.',options:['Motion','Speed','Position'],answer:2},
+{id:'SM9',type:'mc',topic:'Simple Machines',question:'___ is when an object moves.',options:['Position','Motion','Speed'],answer:1},
+{id:'SM10',type:'mc',topic:'Simple Machines',question:'___ is how fast something moves.',options:['Position','Motion','Speed'],answer:2},
+];
+
+// ════════════════════════════════════════════
+//   ORAL QUESTIONS
+// ════════════════════════════════════════════
+const ORAL=[
+  {topic:'🧲 Magnets',q:'What is a magnet?',a:'A magnet is an object that pulls some things towards itself. It attracts objects made of metal, especially iron.'},
+  {topic:'🧲 Magnets',q:'What are the two poles of a magnet?',a:'The two poles are the North Pole and the South Pole.'},
+  {topic:'🧲 Magnets',q:'What happens when you put two north poles together?',a:'They repel — they push each other away.'},
+  {topic:'🧲 Magnets',q:'What happens when you put a north pole and a south pole together?',a:'They attract — they pull each other together.'},
+  {topic:'🧲 Magnets',q:'Name three things a magnet is NOT attracted to.',a:'Examples: wood, rubber, plastic, pencil, eraser, paper — any non-metal object.'},
+  {topic:'🧲 Magnets',q:'What does a compass do?',a:'A compass points towards the North Pole. It helps us find direction.'},
+  {topic:'🧲 Magnets',q:'What kinds of objects do magnets attract?',a:'Magnets attract objects made of metal, especially iron.'},
+  {topic:'🌡️ Heat & Sound',q:'What is heat?',a:'Heat is a kind of energy that can change the state of matter. For example, it can turn ice into water.'},
+  {topic:'🌡️ Heat & Sound',q:'What is the main source of heat on Earth?',a:'The main source of heat on Earth is the Sun.'},
+  {topic:'🌡️ Heat & Sound',q:'What is temperature?',a:'Temperature is how hot or cold something is. We measure it with a thermometer.'},
+  {topic:'🌡️ Heat & Sound',q:'What is fuel? Give one example.',a:'Fuel is something that gives off heat when it burns. Examples: wood, oil, gas.'},
+  {topic:'🌡️ Heat & Sound',q:'What is sound?',a:'Sound is a kind of energy that we can hear. Sound is made when things vibrate.'},
+  {topic:'🌡️ Heat & Sound',q:'What does vibrate mean?',a:'Vibrate means to move back and forth quickly.'},
+  {topic:'🌡️ Heat & Sound',q:'What is pitch?',a:'Pitch is how high or low a sound is.'},
+  {topic:'💡 Light',q:'What is light? Name one source of light.',a:'Light is a kind of energy we can see. The Sun is the main source of light. Others: fire, lamp.'},
+  {topic:'💡 Light',q:'What happens when light hits a mirror?',a:'The light bounces back. This is called reflection.'},
+  {topic:'💡 Light',q:'What is a shadow? How is it made?',a:'A shadow is a dark shape made when an opaque object blocks light.'},
+  {topic:'⚙️ Simple Machines',q:'What is a simple machine? Give one example.',a:'A simple machine makes work easier. Examples: lever, pulley, ramp, wheel and axle.'},
+  {topic:'⚙️ Simple Machines',q:'What is a lever? What is the fulcrum?',a:'A lever is a bar that moves against an unmoving point. The unmoving point is called the fulcrum. Example: seesaw.'},
+  {topic:'⚙️ Simple Machines',q:'What is the difference between position and motion?',a:'Position is the place where something is. Motion is when an object moves.'},
+];
+
+// ════════════════════════════════════════════
+//   TEXT-TO-SPEECH
+// ════════════════════════════════════════════
+let currentUtterance=null;
+function stopSpeak(){
+  if(window.speechSynthesis){window.speechSynthesis.cancel();}
+  currentUtterance=null;
+  document.querySelectorAll('.speak-btn').forEach(b=>b.classList.remove('speaking'));
+}
+function speak(text,btnEl){
+  if(!window.speechSynthesis){alert('Sorry, your browser does not support text-to-speech.');return;}
+  stopSpeak();
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang='en-US';
+  utter.rate=0.88;
+  utter.pitch=1.05;
+  // prefer a clear English voice if available
+  const voices=window.speechSynthesis.getVoices();
+  const preferred=voices.find(v=>v.lang==='en-US'&&(v.name.includes('Samantha')||v.name.includes('Karen')||v.name.includes('Google')||v.name.includes('Alex')));
+  if(preferred)utter.voice=preferred;
+  if(btnEl)btnEl.classList.add('speaking');
+  utter.onend=()=>{if(btnEl)btnEl.classList.remove('speaking');currentUtterance=null;};
+  utter.onerror=()=>{if(btnEl)btnEl.classList.remove('speaking');};
+  currentUtterance=utter;
+  window.speechSynthesis.speak(utter);
+}
+
+// ════════════════════════════════════════════
+//   STATE
+// ════════════════════════════════════════════
+let mode='all',doShuffle=false,qs=[],idx=0,ans={},wrongIds=new Set(),oralIdx=0;
+const oralScores={};
+
+function pick(m,el){
+  mode=m;
+  document.querySelectorAll('.mcard').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function updateWrongLabel(){
+  document.getElementById('wlbl').textContent=wrongIds.size?`${wrongIds.size} to review`:'Practice mistakes';
+}
+function getQs(m){
+  if(m==='all')return[...QB];
+  if(m==='magnets')return QB.filter(q=>q.topic==='Magnets');
+  if(m==='heat')return QB.filter(q=>['Heat','Heat & Sound'].includes(q.topic));
+  if(m==='light')return QB.filter(q=>q.topic==='Light');
+  if(m==='machines')return QB.filter(q=>q.topic==='Simple Machines');
+  if(m==='wrong'){
+    if(!wrongIds.size){alert('No wrong questions yet! Complete a practice first.');return null;}
+    return QB.filter(q=>wrongIds.has(q.id));
+  }
+  return[...QB];
+}
+function go(sh=false){
+  if(mode==='oral'){startOral();return;}
+  doShuffle=sh;
+  let list=getQs(mode);
+  if(!list)return;
+  if(sh)list=list.sort(()=>Math.random()-.5);
+  qs=list;idx=0;ans={};
+  show('s-practice');render();
+}
+
+// ════════════════════════════════════════════
+//   RENDER QUESTION
+// ════════════════════════════════════════════
+function render(){
+  const q=qs[idx],tot=qs.length;
+  document.getElementById('pcount').textContent=`${idx+1}/${tot}`;
+  document.getElementById('pfill').style.width=`${(idx/tot)*100}%`;
+  document.getElementById('ptopic').textContent=q.topic;
+  document.getElementById('nxtbtn').disabled=true;
+  const bmap={mc:'bmc Multiple Choice',tf:'btf True / False',text:'btext Fill Blank',order:'border Listening Order'};
+  const[bc,bl]=(bmap[q.type]||'bmc MC').split(' ');
+  let h=`<div class="qmeta"><span class="badge ${bc}">${bl}</span><span class="topic-tag">${q.topic}</span><span class="qnum">${idx+1}/${tot}</span></div>`;
+
+  if(q.type==='mc'){
+    h+=`<div class="qtext">${q.question}</div><div class="opts">`;
+    q.options.forEach((o,i)=>h+=`<button class="opt" id="op${i}" onclick="chkMC(${i})">${String.fromCharCode(65+i)}) ${o}</button>`);
+    h+=`</div><div class="fb" id="fb"></div>`;
+  }else if(q.type==='tf'){
+    h+=`<div class="qtext">${q.question}</div><div class="tf-row"><button class="tfb" id="tft" onclick="chkTF(true)">✅ TRUE</button><button class="tfb" id="tff" onclick="chkTF(false)">❌ FALSE</button></div><div class="fb" id="fb"></div>`;
+  }else if(q.type==='text'){
+    h+=`<div class="qtext">${q.question}</div>`;
+    if(q.hint)h+=`<div class="hint-txt">💡 ${q.hint}</div>`;
+    h+=`<div class="inp-row"><input class="qinp" id="tinp" placeholder="Type your answer…" onkeyup="if(event.key==='Enter')chkText()"><button class="ckbtn" onclick="chkText()">Check ✓</button></div><div class="fb" id="fb"></div>`;
+  }else if(q.type==='order'){
+    h+=`<div class="qtext">${q.question}</div><div class="hint-txt">📝 Write the number 1–5 next to each sentence.</div><div class="ord-items">`;
+    q.items.forEach((it,i)=>h+=`<div class="ord-item" id="oi${i}"><input class="ord-inp" type="number" min="1" max="5" placeholder="?" id="oii${i}"><span class="ord-txt">${it.text}</span><span class="ord-correct" id="oic${i}">✓ ${it.correct}</span></div>`);
+    h+=`</div><button class="ckbtn" style="margin-top:13px;width:100%;padding:13px" onclick="chkOrder()">Check Answers ✓</button><div class="fb" id="fb"></div>`;
+  }
+  document.getElementById('qcard').innerHTML=h;
+  if(q.type==='text')setTimeout(()=>document.getElementById('tinp')?.focus(),80);
+}
+
+// ════════════════════════════════════════════
+//   CHECK FUNCTIONS
+// ════════════════════════════════════════════
+function chkMC(i){
+  const q=qs[idx];if(ans[q.id])return;
+  const ok=i===q.answer;
+  ans[q.id]={u:q.options[i],ok};
+  if(!ok)wrongIds.add(q.id);
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===q.answer)b.classList.add('ok');
+    if(j===i&&!ok)b.classList.add('ng');
+  });
+  feedback(ok,`Correct answer: ${q.options[q.answer]}`);
+  document.getElementById('nxtbtn').disabled=false;
+}
+function chkTF(v){
+  const q=qs[idx];if(ans[q.id])return;
+  const ok=v===q.answer;
+  ans[q.id]={u:v?'True':'False',ok};
+  if(!ok)wrongIds.add(q.id);
+  document.getElementById('tft').disabled=true;
+  document.getElementById('tff').disabled=true;
+  document.getElementById('tft').classList.add(q.answer===true?'ok':(v===true?'ng':''));
+  document.getElementById('tff').classList.add(q.answer===false?'ok':(v===false?'ng':''));
+  let msg=`Correct: ${q.answer?'TRUE':'FALSE'}`;
+  if(!ok&&q.explanation)msg+=` — ${q.explanation}`;
+  feedback(ok,msg);
+  document.getElementById('nxtbtn').disabled=false;
+}
+function chkText(){
+  const q=qs[idx];if(ans[q.id])return;
+  const el=document.getElementById('tinp');
+  const v=el.value.trim().toLowerCase();
+  const ok=v===q.answer.toLowerCase();
+  ans[q.id]={u:el.value.trim(),ok};
+  if(!ok)wrongIds.add(q.id);
+  el.disabled=true;el.classList.add(ok?'ok':'ng');
+  feedback(ok,`Correct answer: ${q.answer}`);
+  document.getElementById('nxtbtn').disabled=false;
+}
+function chkOrder(){
+  const q=qs[idx];if(ans[q.id])return;
+  let allOk=true;
+  q.items.forEach((it,i)=>{
+    const v=parseInt(document.getElementById(`oii${i}`).value);
+    const ok=v===it.correct;
+    if(!ok)allOk=false;
+    document.getElementById(`oii${i}`).disabled=true;
+    document.getElementById(`oi${i}`).classList.add(ok?'ok':'ng');
+    if(!ok){const c=document.getElementById(`oic${i}`);if(c)c.style.display='inline';}
+  });
+  ans[q.id]={u:'submitted',ok:allOk};
+  if(!allOk)wrongIds.add(q.id);
+  feedback(allOk,'Check the green numbers above for the correct order.');
+  document.getElementById('nxtbtn').disabled=false;
+}
+function feedback(ok,msg){
+  const f=document.getElementById('fb');
+  f.className=`fb on ${ok?'ok':'ng'}`;
+  f.innerHTML=ok?'🎉 Correct! Great job!':'❌ Not quite. '+msg;
+}
+
+// ════════════════════════════════════════════
+//   NAVIGATION
+// ════════════════════════════════════════════
+function next(){idx++;idx>=qs.length?showResults():render();}
+function skip(){const q=qs[idx];ans[q.id]={u:'(skipped)',ok:false};wrongIds.add(q.id);next();}
+function submitExam(){
+  if(!confirm('Submit now and see your score?'))return;
+  for(let i=idx;i<qs.length;i++){const q=qs[i];if(!ans[q.id]){ans[q.id]={u:'(not answered)',ok:false};wrongIds.add(q.id);}}
+  showResults();
+}
+
+// ════════════════════════════════════════════
+//   RESULTS
+// ════════════════════════════════════════════
+function showResults(){
+  document.getElementById('pfill').style.width='100%';
+  show('s-results');
+  const tot=qs.length,cor=Object.values(ans).filter(a=>a.ok).length;
+  const pct=Math.round(cor/tot*100);
+  let grade,stars,bg;
+  if(pct>=90){grade='Excellent! 🌟';stars='⭐⭐⭐';bg='linear-gradient(135deg,#1e8449,#27ae60)';}
+  else if(pct>=75){grade='Good Job! 😊';stars='⭐⭐';bg='linear-gradient(135deg,#1a5276,#2980b9)';}
+  else if(pct>=60){grade='Keep Trying! 💪';stars='⭐';bg='linear-gradient(135deg,#935116,#e67e22)';}
+  else{grade='More Practice! 📖';stars='✏️';bg='linear-gradient(135deg,#922b21,#e74c3c)';}
+  document.getElementById('rsummary').innerHTML=`
+    <div class="score-ring" style="background:${bg}"><div class="snum">${cor}/${tot}</div><div class="slbl">${pct}%</div></div>
+    <div class="grade-txt">${grade}</div><div class="stars">${stars}</div>
+    <div class="grade-msg">${cor} correct out of ${tot} questions</div>`;
+  const topics={};
+  qs.forEach(q=>{if(!topics[q.topic])topics[q.topic]={ok:0,tot:0};topics[q.topic].tot++;if(ans[q.id]?.ok)topics[q.topic].ok++;});
+  const colors={'Magnets':'#2980b9','Heat':'#e67e22','Heat & Sound':'#e67e22','Light':'#f1c40f','Simple Machines':'#27ae60'};
+  let st='<div class="sec-title">📊 Topic Breakdown</div><div class="stats-row">';
+  Object.entries(topics).forEach(([t,v])=>{const p=Math.round(v.ok/v.tot*100);const c=colors[t]||'#999';st+=`<div class="stat-chip"><div class="stat-dot" style="background:${c}"></div>${t}: ${v.ok}/${v.tot} (${p}%)</div>`;});
+  st+='</div>';
+  document.getElementById('rstats').innerHTML=st;
+  const wqs=qs.filter(q=>ans[q.id]&&!ans[q.id].ok);
+  if(wqs.length){
+    let h=`<div class="sec-title">❌ Review These (${wqs.length})</div>`;
+    wqs.forEach(q=>{
+      const a=ans[q.id];
+      let ca='';
+      if(q.type==='mc')ca=q.options[q.answer];
+      else if(q.type==='tf')ca=q.answer?'TRUE':'FALSE';
+      else if(q.type==='text')ca=q.answer;
+      else ca='See correct order above';
+      h+=`<div class="wi"><div class="wi-q">[${q.topic}] ${q.question.substring(0,90)}…</div><div class="wi-y">Your answer: ${a.u||'—'}</div><div class="wi-c">✅ Correct: ${ca}${q.explanation?' — '+q.explanation:''}</div></div>`;
+    });
+    document.getElementById('rwrong').innerHTML=h;
+  }else{
+    document.getElementById('rwrong').innerHTML='<div style="text-align:center;padding:16px;font-weight:900;color:var(--green);font-size:1.1rem">🎊 Perfect Score! Amazing!</div>';
+    confetti();
+  }
+  if(pct>=90)confetti();
+  updateWrongLabel();
+}
+function practiceWrong(){mode='wrong';go(false);}
+function restart(){go(doShuffle);}
+
+// ════════════════════════════════════════════
+//   ORAL MODE
+// ════════════════════════════════════════════
+function startOral(){oralIdx=0;show('s-oral');renderOral();}
+
+function renderOral(){
+  stopSpeak();
+  const o=ORAL[oralIdx],tot=ORAL.length;
+  document.getElementById('opcount').textContent=`${oralIdx+1}/${tot}`;
+  document.getElementById('opfill').style.width=`${(oralIdx/tot)*100}%`;
+  let okCnt=0,ngCnt=0;
+  ORAL.forEach((_,i)=>{if(oralScores[i]==='ok')okCnt++;else if(oralScores[i]==='ng')ngCnt++;});
+  const rem=tot-okCnt-ngCnt;
+  const okActive=oralScores[oralIdx]==='ok';
+  const ngActive=oralScores[oralIdx]==='ng';
+
+  document.getElementById('ocard').innerHTML=`
+    <div class="oral-wrap">
+      <div class="oral-meta">${o.topic} &nbsp;·&nbsp; Question ${oralIdx+1} of ${tot}</div>
+      <div class="oral-q-text" id="oral-qtxt">🎤 ${o.q}</div>
+
+      <div class="speak-row">
+        <button class="speak-btn speak-q" id="spkQ" onclick="speak(ORAL[oralIdx].q, this)">
+          <span class="ico">🔊</span> Read Question
+        </button>
+        <button class="speak-btn speak-a" id="spkA" onclick="revealAndSpeak()" style="display:none">
+          <span class="ico">🔊</span> Read Answer
+        </button>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="reveal-btn rv-ans" onclick="revealAnswer()">👁 Show Answer</button>
+        <button class="reveal-btn rv-hint" onclick="revealHint()">💡 Hint</button>
+      </div>
+
+      <div class="ans-box" id="oans">${o.a}</div>
+      <div class="ans-box hint-box" id="ohint" style="display:none"></div>
+
+      <div class="self-btns">
+        <button class="self-btn sb-ok ${okActive?'active':''}" onclick="scoreOral('ok')">✅ I got it!</button>
+        <button class="self-btn sb-ng ${ngActive?'active':''}" onclick="scoreOral('ng')">❌ Need more practice</button>
+      </div>
+    </div>
+    <div class="oral-score-bar">
+      <div class="osc osc-ok">✅ ${okCnt}</div>
+      <div class="osc osc-ng">❌ ${ngCnt}</div>
+      <div class="osc osc-rem">⏳ ${rem} left</div>
+    </div>`;
+}
+
+function revealAnswer(){
+  const box=document.getElementById('oans');
+  if(box){box.classList.add('on');}
+  // show the read-answer button
+  const spkA=document.getElementById('spkA');
+  if(spkA)spkA.style.display='inline-flex';
+}
+function revealAndSpeak(){
+  revealAnswer();
+  const spkA=document.getElementById('spkA');
+  speak(ORAL[oralIdx].a, spkA);
+}
+function revealHint(){
+  const o=ORAL[oralIdx];
+  const h=document.getElementById('ohint');
+  if(h){
+    h.innerHTML='💡 Key words: '+o.a.split(' ').slice(0,5).join(' ')+'…';
+    h.style.display='block';h.classList.add('on');
+  }
+}
+function scoreOral(s){oralScores[oralIdx]=s;renderOral();}
+function nextOral(){if(oralIdx<ORAL.length-1){oralIdx++;renderOral();}}
+function prevOral(){if(oralIdx>0){oralIdx--;renderOral();}}
+
+// ════════════════════════════════════════════
+//   UTILS
+// ════════════════════════════════════════════
+function show(id){
+  stopSpeak();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function confetti(){
+  const colors=['#f1c40f','#2980b9','#27ae60','#e74c3c','#9b59b6','#e67e22','#1abc9c'];
+  const w=document.createElement('div');w.className='cfwrap';document.body.appendChild(w);
+  for(let i=0;i<80;i++){
+    const p=document.createElement('div');p.className='cfp';
+    p.style.cssText=`left:${Math.random()*100}%;background:${colors[~~(Math.random()*7)]};width:${7+Math.random()*9}px;height:${7+Math.random()*9}px;animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*1.2}s;border-radius:${Math.random()>.5?'50%':'3px'}`;
+    w.appendChild(p);
+  }
+  setTimeout(()=>w.remove(),5500);
+}
+
+// preload voices on page load (some browsers need this)
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+}
+updateWrongLabel();
+</script>
+</body>
+</html>
