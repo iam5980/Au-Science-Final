@@ -238,18 +238,17 @@ function mockResult(){
 /* ---------- oral ---------- */
 let OS={};let rec=null,chunks=[],recUrl={},timer=null;
 function oral(){
-  let h='<div class="card"><h2 style="margin-top:0">🗣️ Oral Practice</h2><p>Answer in <b>complete sentences</b>. Record yourself, then compare with the model answer.</p><div class="scorebar" id="osb"></div></div>';
+  let h='<div class="card"><h2 style="margin-top:0">🗣️ Oral Practice</h2><p>Like the real test: listen to the question and answer in <b>complete sentences</b> — no key words are given. Record yourself, then compare with the model answer.</p><div class="scorebar" id="osb"></div></div>';
   DATA.oral.forEach((o,i)=>{
     h+='<div class="card"><span class="badge">'+esc(o.topic)+'</span><div class="qtext">'+(i+1)+'. '+esc(o.q)+'</div>'+
     '<div><button class="btn sky" onclick="speak(DATA.oral['+i+'].q,0.85)">🔊 Play Question</button></div>'+
-    '<div>🔑 Key words: '+o.kw.map(k=>'<span class="pill">'+esc(k)+'</span>').join("")+'</div>'+
     '<div style="margin-top:10px"><b>🎙️ Record Your Answer</b><br><button class="btn pri" id="rs'+i+'" onclick="recStart('+i+')">⏺ Start</button><button class="btn gr" id="rt'+i+'" onclick="recStop('+i+')" disabled>⏹ Stop</button><button class="btn sky" id="rp'+i+'" onclick="recPlay('+i+')" disabled>▶️ Play My Answer</button> <span id="tm'+i+'"></span><div class="wave" id="wv'+i+'"><i></i><i></i><i></i><i></i><i></i></div></div>'+
     '<button class="btn gr" onclick="showModel('+i+')">👁 Show Model Answer</button><div id="md'+i+'"></div></div>';
   });
   document.getElementById("main").innerHTML=h;updOral();
 }
 function showModel(i){const o=DATA.oral[i];
-  document.getElementById("md"+i).innerHTML='<div class="model">📝 “'+esc(o.model)+'”</div><button class="btn sky" onclick="speak(DATA.oral['+i+'].model,0.85)">🔊 Hear Model Answer</button><div class="chk" style="margin-top:10px"><b>📋 Self-check:</b>'+
+  document.getElementById("md"+i).innerHTML='<div class="model">📝 “'+esc(o.model)+'”</div><div>🔑 Key words to use next time: '+o.kw.map(k=>'<span class="pill">'+esc(k)+'</span>').join("")+'</div><button class="btn sky" onclick="speak(DATA.oral['+i+'].model,0.85)">🔊 Hear Model Answer</button><div class="chk" style="margin-top:10px"><b>📋 Self-check:</b>'+
   o.check.map((c,j)=>'<label><input type="checkbox" onchange="selfChk('+i+')" id="c'+i+'_'+j+'"> '+esc(c)+'</label>').join("")+'<div id="st'+i+'" style="font-size:1.5rem"></div></div>';selfChk(i);}
 function selfChk(i){const n=DATA.oral[i].check.length;let k=0;for(let j=0;j<n;j++){const c=document.getElementById("c"+i+"_"+j);if(c&&c.checked)k++;}
   const r=k/n;document.getElementById("st"+i).textContent=r===1?"⭐⭐⭐":r>=0.67?"⭐⭐":r>=0.34?"⭐":"✏️";OS[i]=r===1?"ok":"need";updOral();}
