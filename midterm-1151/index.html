@@ -11,7 +11,11 @@ body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-
 header{background:var(--navy);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
 header h1{margin:0;font-size:1.25rem}
 header .sub{color:#bae6fd;font-size:.9rem}
-nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:var(--navy2);position:sticky;top:62px;z-index:4}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:var(--navy2);position:sticky;top:var(--hh,62px);z-index:4}
+.drillbar{position:sticky;top:var(--navh,132px);z-index:3;display:flex;align-items:center;gap:8px;justify-content:space-between;background:var(--bg);padding:8px 0;margin-bottom:8px}
+.drillbar .btn{margin:0}.btn.fin{background:#f59e0b;color:#1c1917}
+.model.green{background:#dcfce7;border-left-color:var(--green);font-style:normal}
+.notice{background:#fff7ed;border:2px solid #fdba74;border-radius:12px;padding:10px 12px;font-size:1rem}
 nav button{flex:0 0 auto;min-height:48px;border:0;border-radius:24px;padding:0 16px;font-size:1rem;background:#24507f;color:#fff;cursor:pointer}
 nav button.on{background:var(--sky);color:var(--navy);font-weight:700}
 main{max-width:860px;margin:0 auto;padding:16px}
@@ -95,21 +99,44 @@ try{done = JSON.parse(localStorage.getItem("audrey_sci_mid")||"{}");}catch(e){do
 function mark(id,ok){done[id]=ok?1:0;try{localStorage.setItem("audrey_sci_mid",JSON.stringify(done));}catch(e){}}
 function pct(tab){const qs=qsFor(tab);if(!qs.length)return 0;return Math.round(100*qs.filter(q=>done[q.id]!==undefined).length/qs.length);}
 
-/* ---------- TTS ---------- */
-let voice=null;
-function pickVoice(){const vs=speechSynthesis.getVoices();const pref=["Samantha","Karen","Google US English"];
-  voice=vs.find(v=>pref.some(p=>v.name.indexOf(p)>=0)&&v.lang.indexOf("en")===0)||vs.find(v=>v.lang==="en-US")||vs.find(v=>v.lang.indexOf("en")===0)||null;}
-if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
-let _utt=null;
-function speak(text,rate,onend){if(!("speechSynthesis" in window)){if(onend)onend();return;}
-  const ss=window.speechSynthesis;const busy=ss.speaking||ss.pending;if(busy)ss.cancel();
-  const go=()=>{const u=new SpeechSynthesisUtterance(text);u.lang="en-US";if(!voice)pickVoice();if(voice)u.voice=voice;u.rate=rate||0.85;
-    let fired=false;const fin=()=>{if(fired)return;fired=true;if(onend)onend();};
-    u.onend=fin;u.onerror=fin;_utt=u; // keep a reference so Safari does not drop it
-    try{ss.resume();}catch(e){}ss.speak(u);
-    // safety: unlock answers even if the browser never fires onend
-    setTimeout(fin,Math.max(4000,text.length*110/(u.rate||1)));};
-  if(busy)setTimeout(go,120);else go();}
+/* ---------- TTS (skill-standard speak helper) ---------- */
+function speak(text, rate = 0.88, pitch = 1.0, onend) {
+  if (!window.speechSynthesis) { if (onend) onend(); return; }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'en-US';
+  utter.rate = rate;
+  utter.pitch = pitch;
+  let fired = false;
+  const fin = () => { if (fired) return; fired = true; if (onend) onend(); };
+  utter.onend = fin; utter.onerror = fin;
+  window._utter = utter; // keep a reference so Safari does not drop it
+  function setVoiceAndSpeak() {
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = ['Samantha', 'Karen', 'Google US English', 'Microsoft Aria Online (Natural)'];
+    let chosen = null;
+    for (const name of preferred) {
+      chosen = voices.find(v => v.name === name);
+      if (chosen) break;
+    }
+    if (!chosen) chosen = voices.find(v => v.lang === 'en-US') || voices[0] || null;
+    if (chosen) utter.voice = chosen;
+    window.speechSynthesis.speak(utter);
+    if (onend) setTimeout(fin, Math.max(4000, text.length * 100 / rate)); // safety unlock
+  }
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    setVoiceAndSpeak();
+  } else {
+    let started = false;
+    const once = () => { if (started) return; started = true; setVoiceAndSpeak(); };
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      once();
+    };
+    setTimeout(once, 400); // fallback: some browsers never fire voiceschanged
+  }
+}
 
 /* ---------- nav ---------- */
 let cur="home";
@@ -122,7 +149,7 @@ function home(){
   let h='<div class="card"><h2 style="margin-top:0">Hi Audrey! 👋</h2><p>Your Science midterm is on <b>Wednesday 10/21</b>.<br>Listening 10% · Written 80% · Oral 10% (Oral is in Week 8-9).</p><p><b>Scope:</b> Living Things and Their Needs (p. 20-27) · Plants and Their Parts (p. 30-39) · Vocabulary Week 1-6.</p>'+
   '<p>⭐ <b>Watch out!</b> Leaves make <b>FOOD</b>. Living things need food, water, space, and <b>GASES</b>. Spell <b>carbon dioxide</b>, <b>structure</b>, <b>photosynthesis</b> carefully.</p></div><div class="grid">';
   TABS.filter(t=>t.k!=="home").forEach(t=>{
-    let n = t.k==="mock"?"40 random questions":t.k==="oral"?DATA.oral.length+" speaking questions":qsFor(t.k).length+" questions";
+    let n = t.k==="mock"?examCount+" random questions":t.k==="oral"?DATA.oral.length+" speaking questions":qsFor(t.k).length+" questions";
     let p = (t.k==="mock"||t.k==="oral")?"":'<div class="bar"><div style="width:'+pct(t.k)+'%"></div></div><small>'+pct(t.k)+'% done</small>';
     h+='<div class="tile" onclick="go(\''+t.k+'\')"><div class="ic">'+t.ic+'</div><h3>'+t.name+'</h3><div>'+n+'</div>'+p+'</div>';
   });
@@ -148,12 +175,13 @@ function answerText(q){
   if(q.type==="multi")return q._ans.map(i=>L[i]+") "+q._c[i]).join("  +  ");
   return q.a;
 }
+function drillbar(info){return '<div class="drillbar"><button class="btn gr" onclick="go(\'home\')">⬅ Back</button><span style="color:var(--muted)">'+info+'</span><button class="btn fin" onclick="finishScore()">🏁 Finish &amp; Score</button></div>';}
 function showQ(){
   const m=document.getElementById("main");const q=P.list[P.i];
-  if(!q){return P.mode==="mock"?mockResult():practiceDone();}
+  if(!q){return finishScore();}
   P.checked=false;P.sel=null;P.multi=[];prep(q);
   const tabName=(TABS.find(t=>t.k===(P.mode==="mock"?"mock":P.tab))||{}).name;
-  let h='<div class="card"><div class="qnum"><span>'+tabName+'</span><span>'+(P.i+1)+' / '+P.list.length+'</span></div>';
+  let h=drillbar(esc(tabName)+' · '+(P.i+1)+' / '+P.list.length)+'<div class="card"><div class="qnum"><span>'+tabName+'</span><span>'+(P.i+1)+' / '+P.list.length+'</span></div>';
   if(P.mode==="mock")h+='<div style="margin-bottom:8px"><button class="btn gr" onclick="mockStart()">🔀 New Random Set</button></div>';
   if(q.type==="listening"){
     h+='<div class="speaker">🔊</div><div class="qtext" style="text-align:center">Listen carefully, then answer.</div><div id="ready" class="ready"></div>';
@@ -179,7 +207,7 @@ function showQ(){
 }
 function playListen(){const q=P.list[P.i];if(!q||q.type!=="listening")return;const r=document.getElementById("ready");if(r)r.textContent="🎧 Listening...";
   document.querySelectorAll(".opt").forEach(b=>{if(!P.checked){b.disabled=true;b.classList.add("locked");}});
-  speak(q.say,0.85,()=>{if(P.checked)return;document.querySelectorAll(".opt").forEach(b=>{b.disabled=false;b.classList.remove("locked");});const r2=document.getElementById("ready");if(r2)r2.textContent="✅ Now choose your answer!";});}
+  speak(q.say,0.88,1.0,()=>{if(P.checked)return;document.querySelectorAll(".opt").forEach(b=>{b.disabled=false;b.classList.remove("locked");});const r2=document.getElementById("ready");if(r2)r2.textContent="✅ Now choose your answer!";});}
 function pick(i){if(P.checked)return;P.sel=i;document.querySelectorAll(".opt").forEach((b,j)=>b.classList.toggle("sel",j===i));}
 function pickMulti(i){if(P.checked)return;const k=P.multi.indexOf(i);if(k>=0)P.multi.splice(k,1);else{if(P.multi.length>=2)P.multi.shift();P.multi.push(i);}
   document.querySelectorAll(".opt").forEach((b,j)=>b.classList.toggle("sel",P.multi.indexOf(j)>=0));}
@@ -198,7 +226,8 @@ function check(){
   P.checked=true;
   document.querySelectorAll(".opt").forEach(b=>b.disabled=true);const inp=document.getElementById("inp");if(inp)inp.disabled=true;
   document.getElementById("chk").style.display="none";document.getElementById("nxt").style.display="inline-block";
-  if(P.mode==="mock"){P.answers.push({q:q,ok:r.ok,given:r.given,at:answerText(q)});fb.innerHTML='<div class="fb" style="background:#e0f2fe">Answer saved. 👍</div>';return;}
+  P.answers.push({q:q,ok:r.ok,given:r.given,at:answerText(q)});
+  if(P.mode==="mock"){fb.innerHTML='<div class="fb" style="background:#e0f2fe">Answer saved. 👍</div>';return;}
   mark(q.id,r.ok);
   // colour options
   if(q.type==="mc"||q.type==="listening"||q.type==="vocab_match"){const ci=correctIdx(q);document.getElementById("o"+ci).classList.add("ok");if(!r.ok)document.getElementById("o"+P.sel).classList.add("bad");}
@@ -211,12 +240,29 @@ function check(){
     h+='</div>';fb.innerHTML=h;}
 }
 function nextQ(){P.i++;showQ();}
-function practiceDone(){const qs=P.list;const right=qs.filter(q=>done[q.id]===1).length;
-  document.getElementById("main").innerHTML='<div class="card" style="text-align:center"><div style="font-size:3rem">🎉</div><h2>You finished this section!</h2><p>Correct on last try: <b>'+right+' / '+qs.length+'</b></p><button class="btn pri" onclick="practice(\''+P.tab+'\')">🔁 Practice Again</button><button class="btn sky" onclick="practiceWrong()">✏️ Only My Mistakes</button><button class="btn gr" onclick="go(\'home\')">🏠 Home</button></div>';}
+function starsFor(p){const n=p>=90?5:p>=75?4:p>=55?3:p>=40?2:1;return "⭐".repeat(n);}
+function finishScore(){
+  if("speechSynthesis" in window)speechSynthesis.cancel();
+  if(cur==="oral")return oralScore();
+  const a=P.answers;const n=a.filter(x=>x.ok).length;const p=a.length?Math.round(100*n/a.length):0;
+  const again=P.mode==="mock"?"mockStart()":"practice(\'"+P.tab+"\')";
+  let h='<div class="card" style="text-align:center">';
+  if(!a.length){h+='<h2>You have not answered any questions yet.</h2>';}
+  else{h+='<div style="font-size:1.3rem">Answered <b>'+a.length+'</b> questions — <b>'+n+'</b> correct ('+p+'%)</div><div class="score">'+p+'%</div><div style="font-size:2rem">'+starsFor(p)+'</div>';}
+  h+='<button class="btn pri" onclick="'+again+'">🔁 Try Again</button>';
+  if(P.mode!=="mock")h+='<button class="btn sky" onclick="practiceWrong()">✏️ Only My Mistakes</button>';
+  h+='<button class="btn gr" onclick="go(\'home\')">🏠 Home</button></div>';
+  const wrong=a.filter(x=>!x.ok);const list=P.mode==="mock"?wrong.concat(a.filter(x=>x.ok)):wrong;
+  if(a.length){h+='<div class="card"><h3>'+(P.mode==="mock"?"Review (mistakes first)":(wrong.length?"Review your mistakes":"No mistakes — excellent! 🌟"))+'</h3>';
+    list.forEach(x=>{const q=x.q;const qt=q.type==="listening"?"🎧 "+q.say:q.type==="sort"?"Living or nonliving: "+q.q:q.q;
+      h+='<div class="rev '+(x.ok?"":"w")+'"><div>'+(x.ok?"✅":"❌")+' '+esc(qt)+'</div>'+(x.ok?"":'<div>Your answer: '+esc(x.given)+'</div><div class="ans" style="font-size:1.15rem">'+esc(x.at)+'</div>')+'</div>';});
+    h+='</div>';}
+  document.getElementById("main").innerHTML=h;window.scrollTo(0,0);
+}
 function practiceWrong(){const w=qsFor(P.tab).filter(q=>done[q.id]===0);if(!w.length){const b=document.querySelector(".card");if(b)b.insertAdjacentHTML("beforeend","<div class=\"fb ok\">No mistakes left! 🌟</div>");return;}P={list:shuffle(w),i:0,tab:P.tab,checked:false,sel:null,multi:[],mode:"practice",answers:[]};showQ();}
 
 /* ---------- mock exam ---------- */
-const examCount=40;
+const examCount=30;
 function drawMockExam(){
   // keep the real-exam mix: some listening + mostly written
   const lis=shuffle(listenQs.slice()).slice(0,5);
@@ -224,42 +270,47 @@ function drawMockExam(){
   return lis.concat(rest);
 }
 function mockStart(){if("speechSynthesis" in window)speechSynthesis.cancel();P={list:drawMockExam(),i:0,tab:"mock",checked:false,sel:null,multi:[],mode:"mock",answers:[]};showQ();}
-function mockResult(){
-  const a=P.answers;const n=a.filter(x=>x.ok).length;const p=Math.round(100*n/a.length);
-  const stars=p>=90?"⭐⭐⭐":p>=75?"⭐⭐":p>=60?"⭐":"✏️ Keep practicing!";
-  let h='<div class="card" style="text-align:center"><div class="score">'+n+' / '+a.length+'</div><div style="font-size:2rem">'+stars+'</div><div style="font-size:1.4rem">'+p+'%</div><button class="btn pri" onclick="mockStart()">🔀 New Random Set</button></div><div class="card"><h3>Review (mistakes first)</h3>';
-  a.slice().sort((x,y)=>x.ok-y.ok).forEach(x=>{const q=x.q;const qt=q.type==="listening"?"🎧 "+q.say:q.type==="sort"?"Living or nonliving: "+q.q:q.q;
-    h+='<div class="rev '+(x.ok?"":"w")+'"><div>'+(x.ok?"✅":"❌")+' '+esc(qt)+'</div>'+(x.ok?"":'<div>Your answer: '+esc(x.given)+'</div><div class="ans" style="font-size:1.15rem">'+esc(x.at)+'</div>')+'</div>';});
-  h+='</div>';document.getElementById("main").innerHTML=h;
-}
-
 /* ---------- vocab list (shown above practice on vocab tab) ---------- */
 
 /* ---------- oral ---------- */
-let OS={};let rec=null,chunks=[],recUrl={},timer=null;
-function oral(){
-  let h='<div class="card"><h2 style="margin-top:0">🗣️ Oral Practice</h2><p>Like the real test: listen to the question and answer in <b>complete sentences</b> — no key words are given. Record yourself, then compare with the model answer.</p><div class="scorebar" id="osb"></div></div>';
+let OS={},REV={};let rec=null,chunks=[],recUrl={},timer=null;
+function oral(){OS={};REV={};
+  let h=drillbar("Oral Practice · "+DATA.oral.length+" questions")+'<div class="card"><h2 style="margin-top:0">🗣️ Oral Practice</h2><p>Like the real test: listen to the question and answer in <b>complete sentences</b>. No key words are given. Record yourself, tap Stop, then reveal the model answer.</p>'+
+  '<div class="notice">📱 Recording works in <b>Safari or Chrome</b>. Inside an app viewer (claude.ai, LINE, Facebook, etc.) the microphone is blocked — open the link in Safari or Chrome instead.</div><div class="scorebar" id="osb" style="margin-top:10px"></div></div>';
   DATA.oral.forEach((o,i)=>{
     h+='<div class="card"><span class="badge">'+esc(o.topic)+'</span><div class="qtext">'+(i+1)+'. '+esc(o.q)+'</div>'+
-    '<div><button class="btn sky" onclick="speak(DATA.oral['+i+'].q,0.85)">🔊 Play Question</button></div>'+
+    '<div><button class="btn sky" onclick="speak(DATA.oral['+i+'].q)">🔊 Play Question</button></div>'+
     '<div style="margin-top:10px"><b>🎙️ Record Your Answer</b><br><button class="btn pri" id="rs'+i+'" onclick="recStart('+i+')">⏺ Start</button><button class="btn gr" id="rt'+i+'" onclick="recStop('+i+')" disabled>⏹ Stop</button><button class="btn sky" id="rp'+i+'" onclick="recPlay('+i+')" disabled>▶️ Play My Answer</button> <span id="tm'+i+'"></span><div class="wave" id="wv'+i+'"><i></i><i></i><i></i><i></i><i></i></div></div>'+
-    '<button class="btn gr" onclick="showModel('+i+')">👁 Show Model Answer</button><div id="md'+i+'"></div></div>';
+    '<button class="btn gr" id="rv'+i+'" style="display:none" onclick="showModel('+i+')">👁 Reveal Answer</button><div id="md'+i+'"></div></div>';
   });
   document.getElementById("main").innerHTML=h;updOral();
 }
-function showModel(i){const o=DATA.oral[i];
-  document.getElementById("md"+i).innerHTML='<div class="model">📝 “'+esc(o.model)+'”</div><div>🔑 Key words to use next time: '+o.kw.map(k=>'<span class="pill">'+esc(k)+'</span>').join("")+'</div><button class="btn sky" onclick="speak(DATA.oral['+i+'].model,0.85)">🔊 Hear Model Answer</button><div class="chk" style="margin-top:10px"><b>📋 Self-check:</b>'+
+function showReveal(i){const b=document.getElementById("rv"+i);if(b&&!REV[i])b.style.display="inline-block";}
+function showModel(i){const o=DATA.oral[i];REV[i]=1;document.getElementById("rv"+i).style.display="none";
+  document.getElementById("md"+i).innerHTML='<div class="model green">📝 Model Answer:<br><b>“'+esc(o.model)+'”</b></div><div>🔑 Key words to use: '+o.kw.map(k=>'<span class="pill">'+esc(k)+'</span>').join("")+'</div><button class="btn sky" onclick="speak(DATA.oral['+i+'].model)">🔊 Hear Model Answer</button><div class="chk" style="margin-top:10px"><b>📋 Self-check:</b>'+
   o.check.map((c,j)=>'<label><input type="checkbox" onchange="selfChk('+i+')" id="c'+i+'_'+j+'"> '+esc(c)+'</label>').join("")+'<div id="st'+i+'" style="font-size:1.5rem"></div></div>';selfChk(i);}
 function selfChk(i){const n=DATA.oral[i].check.length;let k=0;for(let j=0;j<n;j++){const c=document.getElementById("c"+i+"_"+j);if(c&&c.checked)k++;}
-  const r=k/n;document.getElementById("st"+i).textContent=r===1?"⭐⭐⭐":r>=0.67?"⭐⭐":r>=0.34?"⭐":"✏️";OS[i]=r===1?"ok":"need";updOral();}
-function updOral(){const n=DATA.oral.length;const ok=Object.values(OS).filter(x=>x==="ok").length;const nd=Object.values(OS).filter(x=>x==="need").length;
+  const r=k/n;document.getElementById("st"+i).textContent=r===1?"⭐⭐⭐":r>=0.67?"⭐⭐":r>=0.34?"⭐":"✏️";OS[i]={ok:r===1,k:k,n:n};updOral();}
+function updOral(){const n=DATA.oral.length;const v=Object.values(OS);const ok=v.filter(x=>x.ok).length;const nd=v.length-ok;
   const e=document.getElementById("osb");if(e)e.innerHTML='<span>✅ '+ok+' got it</span><span>❌ '+nd+' need practice</span><span>⏳ '+(n-ok-nd)+' left</span>';}
+function oralScore(){if(rec&&rec.state!=="inactive")try{rec.stop();}catch(e){}clearInterval(timer);
+  const ids=Object.keys(OS).map(Number);const ok=ids.filter(i=>OS[i].ok).length;const p=ids.length?Math.round(100*ok/ids.length):0;
+  let h='<div class="card" style="text-align:center">';
+  if(!ids.length)h+='<h2>You have not checked any answers yet.</h2><p>Record an answer, tap Stop, then Reveal Answer and tick the self-check boxes.</p>';
+  else h+='<div style="font-size:1.3rem">Answered <b>'+ids.length+'</b> questions — <b>'+ok+'</b> fully correct ('+p+'%)</div><div class="score">'+p+'%</div><div style="font-size:2rem">'+starsFor(p)+'</div>';
+  h+='<button class="btn pri" onclick="oral()">🔁 Try Again</button><button class="btn gr" onclick="go(\'home\')">🏠 Home</button></div>';
+  const need=ids.filter(i=>!OS[i].ok);
+  if(ids.length){h+='<div class="card"><h3>'+(need.length?"Practice these again":"All answered questions were complete! 🌟")+'</h3>';
+    need.forEach(i=>{const o=DATA.oral[i];h+='<div class="rev w"><div>❌ '+esc(o.q)+' <small>('+OS[i].k+'/'+OS[i].n+' points)</small></div><div class="ans" style="font-size:1.05rem">“'+esc(o.model)+'”</div></div>';});
+    h+='</div>';}
+  document.getElementById("main").innerHTML=h;window.scrollTo(0,0);}
 function pickMime(){const t=["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg"];if(!window.MediaRecorder)return null;for(const x of t){try{if(MediaRecorder.isTypeSupported(x))return x;}catch(e){}}return "";}
 async function recStart(i){
   const msg=document.getElementById("tm"+i);
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){micHelp(i);return;}
+  const gum=navigator.mediaDevices.getUserMedia({audio:true}); // called directly inside the click handler
   msg.textContent="⏳ Asking for the microphone...";
-  try{const s=await Promise.race([navigator.mediaDevices.getUserMedia({audio:true}),new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),8000))]);const mt=pickMime();
+  try{const s=await Promise.race([gum,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),8000))]);const mt=pickMime();
     rec=mt?new MediaRecorder(s,{mimeType:mt}):new MediaRecorder(s);chunks=[];
     rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
     rec.onstop=()=>{const b=new Blob(chunks,{type:rec.mimeType||"audio/webm"});recUrl[i]=URL.createObjectURL(b);s.getTracks().forEach(t=>t.stop());document.getElementById("rp"+i).disabled=false;};
@@ -268,16 +319,19 @@ async function recStart(i){
   }catch(e){micHelp(i);}
 }
 function micHelp(i){const m=document.getElementById("tm"+i);
-  m.innerHTML='<div class="fb bad" style="margin-top:8px">🎙️ The microphone is not available here.<br>• If this page is open on claude.ai, recording is blocked there. Download the HTML file and open it in Safari or Chrome, then tap Start again.<br>• If a pop-up asked for the microphone, choose <b>Allow</b>.<br>You can still practice: say your answer out loud, then tap 👁 Show Model Answer.</div>';}
-function recStop(i){if(rec&&rec.state!=="inactive")rec.stop();clearInterval(timer);document.getElementById("rs"+i).disabled=false;document.getElementById("rt"+i).disabled=true;document.getElementById("wv"+i).classList.remove("on");}
-function recPlay(i){if(!recUrl[i])return;const a=new Audio(recUrl[i]);a.oncanplaythrough=()=>a.play();a.load();}
+  m.innerHTML='<div class="fb bad" style="margin-top:8px">🎙️ The microphone is not available here.<br>• If this page is open on claude.ai, recording is blocked there. Download the HTML file and open it in Safari or Chrome, then tap Start again.<br>• If a pop-up asked for the microphone, choose <b>Allow</b>.<br>You can still practice: say your answer out loud, then tap 👁 Reveal Answer.</div>';showReveal(i);}
+function recStop(i){if(rec&&rec.state!=="inactive")rec.stop();clearInterval(timer);document.getElementById("rs"+i).disabled=false;document.getElementById("rt"+i).disabled=true;document.getElementById("wv"+i).classList.remove("on");showReveal(i);}
+function recPlay(i){if(!recUrl[i])return;const a=new Audio(recUrl[i]);a.play().catch(()=>{});}
 
 /* vocab tab: add word list button */
 const _practice=practice;
 practice=function(tab){_practice(tab);if(tab==="vocab"){const m=document.getElementById("main");const d=document.createElement("div");d.className="card";
   d.innerHTML='<details><summary style="font-weight:700;cursor:pointer;min-height:40px">📚 Show the Science word list (Week 1-6, '+DATA.vocab.length+' words)</summary><table class="vtable"><tr><th>Word</th><th>Definition</th></tr>'+DATA.vocab.map(v=>'<tr><td><b>'+esc(v.w)+'</b><br><small>'+esc(v.zh)+'</small></td><td>'+esc(v.d)+'<br><i style="color:#64748b">'+esc(v.s)+'</i></td></tr>').join("")+'</table></details>';
   m.appendChild(d);}};
-go("home");
+function setOffsets(){const h=document.querySelector("header").offsetHeight;const n=document.getElementById("nav").offsetHeight;
+  document.documentElement.style.setProperty("--hh",h+"px");document.documentElement.style.setProperty("--navh",(h+n)+"px");}
+window.addEventListener("resize",setOffsets);
+go("home");setOffsets();
 </script>
 </body>
 </html>
