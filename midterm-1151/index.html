@@ -163,10 +163,20 @@ function resetProg(){done={};try{localStorage.removeItem("audrey_sci_mid");}catc
 let P={list:[],i:0,tab:"",checked:false,sel:null,multi:[],mode:"practice",answers:[]};
 function practice(tab){P={list:shuffle(qsFor(tab).slice()),i:0,tab:tab,checked:false,sel:null,multi:[],mode:"practice",answers:[]};showQ();}
 
-function prep(q){ // shuffle choices every time a question is shown
-  if(q.type==="vocab_match"){q._c=shuffle([q.word].concat(q.others));q._ans=[q._c.indexOf(q.word)];return;}
-  if(q.type==="mc"||q.type==="listening"||q.type==="multi"){const ord=shuffle(q.c.map((_,i)=>i));q._c=ord.map(i=>q.c[i]);
-    const corr=(Array.isArray(q.a)?q.a:[q.a]).map(x=>L.indexOf(x));q._ans=corr.map(ci=>ord.indexOf(ci)).sort();}
+/* balanced answer positions: correct answers spread evenly over A/B/C(/D), never 3 in a row */
+const POSQ={};let lastPos=[];
+function runOK(a,prev){const s=prev.concat(a);for(let i=2;i<s.length;i++){if(s[i]===s[i-1]&&s[i]===s[i-2])return false;}return true;}
+function balanced(n,prev){let a,k=0;do{a=[];for(let r=0;r<3;r++)for(let i=0;i<n;i++)a.push(i);shuffle(a);k++;}while(!runOK(a,prev)&&k<200);return a;}
+function nextPos(n){if(!POSQ[n]||!POSQ[n].length)POSQ[n]=balanced(n,lastPos.slice(-2));const p=POSQ[n].shift();lastPos.push(p);if(lastPos.length>4)lastPos.shift();return p;}
+const PAIRQ=[];
+function nextPair(){if(!PAIRQ.length)PAIRQ.push(...shuffle([[0,1],[0,2],[1,2],[0,1],[0,2],[1,2]]));return PAIRQ.shift();}
+function placeAt(correct,wrong,targets,n){const out=new Array(n);targets.forEach((t,k)=>out[t]=correct[k]);const w=shuffle(wrong.slice());for(let i=0;i<n;i++)if(out[i]===undefined)out[i]=w.shift();return out;}
+function prep(q){ // choices re-ordered every time a question is shown
+  if(q.type==="vocab_match"){const pos=nextPos(4);q._c=placeAt([q.word],q.others,[pos],4);q._ans=[pos];return;}
+  if(q.type==="mc"||q.type==="listening"){const ci=L.indexOf(q.a);const pos=nextPos(q.c.length);
+    q._c=placeAt([q.c[ci]],q.c.filter((_,i)=>i!==ci),[pos],q.c.length);q._ans=[pos];return;}
+  if(q.type==="multi"){const corr=q.a.map(x=>q.c[L.indexOf(x)]);const pr=nextPair();
+    q._c=placeAt(shuffle(corr),q.c.filter(c=>corr.indexOf(c)<0),pr,q.c.length);q._ans=pr.slice().sort();}
 }
 function choicesOf(q){return q._c;}
 function correctIdx(q){return q._ans[0];}
